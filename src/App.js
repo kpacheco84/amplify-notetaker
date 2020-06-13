@@ -1,3 +1,4 @@
+
 import React, {Component} from 'react';
 import { withAuthenticator, includeGreetings,AmplifyGreetings } from '@aws-amplify/ui-react';
 import { Greetings} from 'aws-amplify-react';
@@ -6,7 +7,6 @@ import {createNote, updateNote} from './graphql/mutations';
 
 import {deleteNote} from './graphql/mutations';
 import {listNotes} from './graphql/queries';
-import {onCreateNote} from './graphql/subscriptions';
 
 //try to get Greetings to show up with username or name
 
@@ -20,35 +20,11 @@ class App extends Component {
    
   }
 
-  // left off at 6.31 minutes
-  componentDidMount(){
-      this.getNotes();
-      this.createNoteListener =API.graphql(graphqlOperation(onCreateNote)).subscribe({
-        next: noteData => {
-            console.log(noteData)
-            const newNote = noteData.value.data.onCreateNote
-            const prevNotes = this.state.notes.filter(note => note.id !== newNote.id)
-            const updatedNotes = [...prevNotes, newNote];
-            this.setState({notes: updatedNotes})
-        }
-      })
-      }
+ async componentDidMount(){
+    const result = await API.graphql(graphqlOperation(listNotes))
+    this.setState({notes: result.data.listNotes.items})
 
-
-componentWillUnmount(){
-  this.createNoteListener.unsubscribe();
-
-}
-
-
- getNotes = async  () => {
-  const result = await API.graphql(graphqlOperation(listNotes))
-  this.setState({notes: result.data.listNotes.items})
-
-}
-
-
-
+ }
 
   handleChangeNote = event =>this.setState({note: event.target.value});
 
@@ -73,14 +49,13 @@ componentWillUnmount(){
             //if note existed already then update it
             this.handleUpdateNote()
        }else{
-    
-        const input = {note}
+    const input = {note}
 
-   await API.graphql(graphqlOperation(createNote, {input }))
-    //const newNote =result.data.createNote
+    const result = await API.graphql(graphqlOperation(createNote, {input }))
+    const newNote =result.data.createNote
 
-    //const updatedNotes =[newNote, ...notes]
-    this.setState({ note:""});
+    const updatedNotes =[newNote, ...notes]
+    this.setState({notes: updatedNotes, note:""});
        }
   };
 

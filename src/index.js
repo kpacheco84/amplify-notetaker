@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import App from './App'; // change this to App if you want to use the other source for running
 import * as serviceWorker from './serviceWorker';
 import Amplify from 'aws-amplify';
 import aws_exports from './aws-exports';
